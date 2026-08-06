@@ -55,7 +55,104 @@
     </div>
 
     <script>
-        / YOUR CODE WILL GO HERE
+        /* ================================================================
+           STEP 1 — the Happy Path function.
+           Assumes clean input. That assumption is exactly what Step 2
+           exists to defend against.
+           ================================================================ */
+        function calculateRegistration(quantity, ticketType) {
+            var pricePerTicket = 0;
+
+            if (ticketType === "standard") {
+                pricePerTicket = 50;
+            } else if (ticketType === "vip") {
+                pricePerTicket = 120;
+            }
+
+            return quantity * pricePerTicket;
+        }
+
+        /* ================================================================
+           STEP 2 — the validation gate.
+
+           ORDER IS LOAD-BEARING. Each check returns the FIRST failure it
+           finds, so a blank name reports the name error even when the
+           quantity is also wrong. Reordering these changes which message
+           the assignment's Test 1 produces.
+           ================================================================ */
+        function validateInputs(name, quantity, ticketType) {
+            // 1. Blank, or nothing but spaces. trim() removes the spaces so
+            //    "   " collapses to "" and is correctly rejected.
+            if (name === undefined || name === null || name.trim() === "") {
+                return "Name field cannot be left blank.";
+            }
+
+            // 2. The placeholder <option> carries value="", so an untouched
+            //    dropdown lands here.
+            if (ticketType === undefined || ticketType === null || ticketType === "") {
+                return "Please select a valid ticket type.";
+            }
+
+            // 3. Zero or negative. This is the check that stops the form
+            //    from "paying the user" -3 tickets at -$360.
+            if (quantity <= 0) {
+                return "Ticket quantity must be at least 1.";
+            }
+
+            // 4. Whole numbers only. Number.isInteger is used rather than
+            //    (quantity % 1 === 0) because it also rejects NaN and
+            //    Infinity rather than letting them through.
+            if (!Number.isInteger(quantity)) {
+                return "You cannot purchase fractional tickets.";
+            }
+
+            return true;
+        }
+
+        /* ================================================================
+           STEP 3 — implement and connect.
+           ================================================================ */
+        var nameInput = document.getElementById("fullName");
+        var quantityInput = document.getElementById("ticketQuantity");
+        var typeInput = document.getElementById("ticketType");
+        var registerButton = document.getElementById("registerBtn");
+
+        var errorBox = document.getElementById("errorBox");
+        var receiptBox = document.getElementById("receiptBox");
+        var receiptName = document.getElementById("receiptName");
+        var receiptQty = document.getElementById("receiptQty");
+        var receiptTotal = document.getElementById("receiptTotal");
+
+        registerButton.addEventListener("click", function () {
+            var enteredName = nameInput.value;
+            var enteredType = typeInput.value;
+
+            // Input values are strings. Number() converts before we compare
+            // or multiply, so "-3" becomes the number -3 and actually fails
+            // the `quantity <= 0` test instead of being compared as text.
+            var enteredQuantity = Number(quantityInput.value);
+
+            var validationResult = validateInputs(enteredName, enteredQuantity, enteredType);
+
+            if (validationResult !== true) {
+                // Failure: show the message, and make sure no stale receipt
+                // from a previous successful attempt is left on screen.
+                receiptBox.style.display = "none";
+                errorBox.textContent = validationResult;
+                errorBox.style.display = "block";
+            } else {
+                // Success: clear any previous error, then build the receipt.
+                errorBox.style.display = "none";
+
+                var total = calculateRegistration(enteredQuantity, enteredType);
+
+                receiptName.textContent = enteredName.trim();
+                receiptQty.textContent = enteredQuantity;
+                receiptTotal.textContent = "$" + total.toFixed(2);
+
+                receiptBox.style.display = "block";
+            }
+        });
     </script>
 </body>
 </html>
