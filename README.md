@@ -45,7 +45,7 @@ cleared on success.
 
 ## Live URL
 
-https://jinfusion-edu.github.io/it102-event-registration-form/
+https://edu.jinfusion.dev/it102-event-registration-form/
 
 ## AI collaboration — tool and prompts
 
